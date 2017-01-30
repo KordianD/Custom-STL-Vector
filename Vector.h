@@ -1,6 +1,8 @@
 #ifndef VECTOR_TEMPLATE_VECTOR_H
 #define VECTOR_TEMPLATE_VECTOR_H
 
+#include "Iterator.h"
+
 template<typename DT>
 class Vector {
 private:
@@ -44,6 +46,9 @@ public:
 
     void resize(int count);
 
+    friend class Iterator<DT>;
+    typedef class Iterator<DT> iterator;
+
     // iterator erase(iterator pos );
     // iterator erase(const_iterator pos);
     // iterator erase(iterator first, iterator last);
@@ -56,17 +61,8 @@ public:
     // iterator insert( const_iterator pos, size_type count, const T& value );
 
 
-    // iterator end();
-    // iterator begin();
-
-    // iterator cbegin();
-    // iterator cend();
-
-    // iterator rbegin();
-    // iterator rend();
-
-    // iterator crbegin();
-    // iterator crend();
+     iterator end();
+     iterator begin();
 
 };
 
@@ -282,6 +278,18 @@ void Vector<DT>::assign(int count, const DT &value) {
         for (int i = 0; i < count; i++)
             tab[i] = value;
     }
+}
+
+template<typename DT>
+Iterator<DT> Vector<DT>::end(){
+     Iterator<DT> temp(tab + sizeVector);
+    return temp;
+}
+
+template<typename DT>
+Iterator<DT> Vector<DT>::begin(){
+    Iterator<DT> temp(tab);
+    return temp;
 }
 
 #endif //VECTOR_TEMPLATE_VECTOR_H
