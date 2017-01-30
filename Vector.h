@@ -12,6 +12,7 @@ private:
 public:
     Vector() : tab(nullptr), sizeVector(), capacityVector() {}
     explicit Vector(int size);
+    Vector(int size, int value);
     Vector(const std::initializer_list<DT> &v);
     Vector(const Vector<DT> &v);
     Vector(Vector<DT> &&v);
@@ -27,11 +28,11 @@ public:
     int capacity();
     int size();
 
-    void push_back(DT &v);
+    void push_back(DT & v);
 
     void pop_back();
 
-    void swap(Vector &other);
+    void swap(Vector & other);
 
     DT & front();
     const DT & front() const;
@@ -49,26 +50,27 @@ public:
     friend class Iterator<DT>;
     typedef class Iterator<DT> iterator;
 
-    // iterator erase(iterator pos );
-    // iterator erase(const_iterator pos);
-    // iterator erase(iterator first, iterator last);
-    // iterator erase(const_iterator first, const_iterator last);
+     Iterator<DT> erase(Iterator<DT> pos);
+     Iterator<DT> erase(Iterator<DT> first, Iterator<DT> last);
+     Iterator<DT> insert(Iterator<DT> pos, const DT & value);
+     void insert(iterator pos, int count, const DT & value);
 
-    // iterator insert( iterator pos, const T& value );
-    // iterator insert( const_iterator pos, const T& value );
-    // iterator insert( const_iterator pos, T&& value );
-    // void insert( iterator pos, size_type count, const T& value );
-    // iterator insert( const_iterator pos, size_type count, const T& value );
-
-
-     iterator end();
-     iterator begin();
+     Iterator<DT> end();
+     Iterator<DT> begin();
 
 };
 
 template<typename DT>
 Vector<DT>::Vector(int size) : sizeVector(size), capacityVector(size) {
     tab = new DT[sizeVector];
+}
+
+template<typename DT>
+Vector<DT>::Vector(int size, int value) : sizeVector(size), capacityVector(size){
+    tab = new DT[sizeVector];
+
+    for (int i = 0; i < sizeVector; i++)
+        tab[i] = value;
 }
 
 template<typename DT>
@@ -290,6 +292,83 @@ template<typename DT>
 Iterator<DT> Vector<DT>::begin(){
     Iterator<DT> temp(tab);
     return temp;
+}
+
+template<typename DT>
+Iterator<DT> Vector<DT>::erase(Iterator<DT> pos) {
+    int i = 0;
+    auto it = (*this).begin();
+
+    for (it; it != pos; it++, i++);
+
+    for (auto it = pos + 1; it != (*this).end(); it++, i++)
+        tab[i] = tab[i + 1];
+
+    sizeVector--;
+    return pos;
+}
+
+template<typename DT>
+Iterator<DT> Vector<DT>::erase(Iterator<DT> first, Iterator<DT> last){
+    int i = 0;
+    int temp = 0;
+    auto it = (*this).begin();
+
+    for (it; it != first; it++, i++);
+
+    for (it = first; it != last; it++, temp++, i++);
+
+    for (auto it = last; it != (*this).end(); it++, i++)
+        tab[i - temp] = tab[i];
+
+    sizeVector -=  temp;
+    return last;
+}
+
+template<typename DT>
+Iterator<DT> Vector<DT>::insert(Iterator<DT> pos, const DT & value){
+    int i = 0;
+
+    if (capacityVector > sizeVector){
+        for(Iterator<DT> it = tab + sizeVector; it != pos; it--, i++){
+            tab[sizeVector - i] = tab[sizeVector - i - 1];
+        }
+        *pos = value;
+        sizeVector++;
+    } else{
+        DT * temp = new DT[sizeVector + 1];
+            for (Iterator<DT> it = tab; it != pos; it++, i++)
+             temp[i] = tab[i];
+        temp[i] = value;
+        i++;
+            for (Iterator<DT> it = tab + i + 1; it != tab + sizeVector + 2; it++, i++)
+            temp[i] = tab[i-1];
+        delete [] tab;
+        tab = temp;
+        sizeVector++;
+        capacityVector = sizeVector;
+    }
+}
+
+template<typename DT>
+void Vector<DT>::insert(Iterator<DT> pos, int count, const DT & value){
+    DT * temp = new DT[sizeVector + count];
+
+    int i = 0, j = 0;
+
+    for (Iterator<DT> it = tab; it != pos; it++, i++)
+        temp[i] = tab[i];
+
+    for (j; j < count; j++)
+        temp[i+j] = value;
+
+    for (Iterator<DT> it = tab + i; it != tab + sizeVector; it++, i++)
+        temp[i+j] = tab[i];
+
+        sizeVector += count;
+    capacityVector = sizeVector;
+    delete [] tab;
+    tab = temp;
 }
 
 #endif //VECTOR_TEMPLATE_VECTOR_H
