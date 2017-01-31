@@ -6,11 +6,11 @@
 template<typename DT>
 class Vector {
 private:
-    DT *tab;
-    int sizeVector;
-    int capacityVector;
+    DT *storage;
+    int _size;
+    int _capacity;
 public:
-    Vector() : tab(nullptr), sizeVector(0), capacityVector(0) {}
+    Vector() : storage(nullptr), _size(0), _capacity(0) {}
     explicit Vector(int size);
     Vector(int size, int value);
     Vector(const std::initializer_list<DT> &v);
@@ -61,36 +61,36 @@ public:
 };
 
 template<typename DT>
-Vector<DT>::Vector(int size) : sizeVector(size), capacityVector(size) {
-    tab = new DT[sizeVector];
+Vector<DT>::Vector(int size) : _size(size), _capacity(size) {
+    storage = new DT[_size];
 }
 
 template<typename DT>
-Vector<DT>::Vector(int size, int value) : sizeVector(size), capacityVector(size){
-    tab = new DT[sizeVector];
+Vector<DT>::Vector(int size, int value) : _size(size), _capacity(size){
+    storage = new DT[_size];
 
-    for (int i = 0; i < sizeVector; i++)
-        tab[i] = value;
+    for (int i = 0; i < _size; i++)
+        storage[i] = value;
 }
 
 template<typename DT>
-Vector<DT>::Vector(const std::initializer_list<DT> &v) : sizeVector(v.size()), capacityVector(v.size()) {
-    tab = new DT[v.size()];
+Vector<DT>::Vector(const std::initializer_list<DT> &v) : _size(v.size()), _capacity(v.size()) {
+    storage = new DT[v.size()];
 
     for (int i = 0; i < v.size(); i++)
-        tab[i] = *(v.begin() + i);
+        storage[i] = *(v.begin() + i);
 }
 
 template<typename DT>
-Vector<DT>::Vector(const Vector<DT> &v) : sizeVector(v.sizeVector), capacityVector(v.capacityVector) {
-    tab = new DT[capacityVector];
+Vector<DT>::Vector(const Vector<DT> &v) : _size(v._size), _capacity(v._capacity) {
+    storage = new DT[_capacity];
 
-    for (int i = 0; i < sizeVector; i++)
-        tab[i] = v.tab[i];
+    for (int i = 0; i < _size; i++)
+        storage[i] = v.storage[i];
 }
 
 template<typename DT>
-Vector<DT>::Vector(Vector<DT> &&v): sizeVector(0), capacityVector(0), tab(nullptr)
+Vector<DT>::Vector(Vector<DT> &&v): _size(0), _capacity(0), storage(nullptr)
 {
     v.swap(*this);
 }
@@ -111,16 +111,16 @@ Vector<DT> &Vector<DT>::operator=(Vector<DT> &&v) {
 
 template<typename DT>
 Vector<DT>::~Vector() {
-    delete[] tab;
+    delete[] storage;
 }
 
 template<typename DT>
-bool Vector<DT>::operator==(const Vector<DT> &v) {
-    if (sizeVector != v.sizeVector || capacityVector != v.capacityVector)
+bool Vector<DT>::operator==(const Vector<DT> &v) const {
+    if (_size != v._size || _capacity != v._capacity)
         return false;
 
-    for (int i = 0; i < sizeVector; i++)
-        if (tab[i] != v.tab[i])
+    for (int i = 0; i < _size; i++)
+        if (storage[i] != v.storage[i])
             return false;
 
     return true;
@@ -133,57 +133,57 @@ bool Vector<DT>::operator!=(const Vector<DT> &v) const{
 
 template<typename DT>
 int Vector<DT>::capacity() const{
-    return capacityVector;
+    return _capacity;
 }
 
 template<typename DT>
 int Vector<DT>::size() const{
-    return sizeVector;
+    return _size;
 }
 
 template<typename DT>
 void Vector<DT>::push_back(DT &v) {
-    if (sizeVector == capacityVector) {
-        capacityVector += 5;
-        DT *temp = new DT[capacityVector];
-        for (int i = 0; i < sizeVector; i++)
-            temp[i] = tab[i];
+    if (_size == _capacity) {
+        _capacity += 5;
+        DT *temp = new DT[_capacity];
+        for (int i = 0; i < _size; i++)
+            temp[i] = storage[i];
 
-        temp[sizeVector] = v;
-        delete[] tab;
-        tab = temp;
-        size++;
+        temp[_size] = v;
+        delete[] storage;
+        storage = temp;
+        _size++;
     } else {
-        tab[sizeVector] = v;
-        size++;
+        storage[_size] = v;
+        _size++;
     }
 }
 
 template<typename DT>
 void Vector<DT>::pop_back() {
-    if (sizeVector > 0)
-        sizeVector--;
+    if (_size > 0)
+        _size--;
 }
 
 template<typename DT>
 void Vector<DT>::swap(Vector &other) noexcept {
-    std::swap(tab,           other.tab);
-    std::swap(sizeVector,    other.sizeVector);
-    std::swap(capacityVector,other.capacityVector);
+    std::swap(storage,           other.storage);
+    std::swap(_size,             other._size);
+    std::swap(_capacity,         other._capacity);
 }
 
 template<typename DT>
 DT &Vector<DT>::front() {
-    if (sizeVector > 0)
-        return tab[0];
+    if (_size > 0)
+        return storage[0];
     else
         throw std::logic_error("Empty container");
 }
 
 template<typename DT>
 const DT &Vector<DT>::front() const {
-    if (sizeVector > 0)
-        return tab[0];
+    if (_size > 0)
+        return storage[0];
     else
         throw std::logic_error("Empty container");
 }
@@ -192,47 +192,47 @@ template<typename DT>
 void Vector<DT>::resize(int count) {
     if (count < 0)
         throw std::length_error();
-    else if (count < sizeVector)
-        size = count;
-    else if (count > capacityVector) {
-        DT *tempTab = new DT[count];
-        for (int i = 0; i < sizeVector; i++)
-            tempTab[i] = tab[i];
-        delete[] tab;
-        tab = tempTab;
+    else if (count < _size)
+        _size = count;
+    else if (count > _capacity) {
+        DT *tempStorage = new DT[count];
+        for (int i = 0; i < _size; i++)
+            tempStorage[i] = storage[i];
+        delete[] storage;
+        storage = tempStorage;
     }
 }
 
 template<typename DT>
 const DT &Vector<DT>::back() const {
-    if (sizeVector == 0)
+    if (_size == 0)
         throw std::logic_error("Empty");
 
-    return tab[sizeVector - 1];
+    return storage[_size - 1];
 }
 
 template<typename DT>
 DT &Vector<DT>::back() {
-    if (sizeVector == 0)
+    if (_size == 0)
         throw std::logic_error("Empty");
 
-    return tab[sizeVector - 1];
+    return storage[_size - 1];
 }
 
 template<typename DT>
 DT &Vector<DT>::operator[](int size) {
-    if (size > sizeVector - 1 || size < 0)
+    if (size > _size - 1 || _size < 0)
         throw std::out_of_range("Out of scope");
     else
-        return tab[size];
+        return storage[size];
 }
 
 template<typename DT>
 const DT &Vector<DT>::operator[](int size) const {
-    if (size > sizeVector - 1 || size < 0)
+    if (size > _size - 1 || size < 0)
         throw std::out_of_range("Out of scope");
     else
-        return tab[size];
+        return storage[size];
 }
 
 template<typename DT>
@@ -240,28 +240,28 @@ void Vector<DT>::assign(int count, const DT &value) {
     if (count < 0)
         throw std::out_of_range("Out of scope");
 
-    if (count < capacityVector)
+    if (count < _capacity)
         for (int i = 0; i < count; i++)
-            tab[i] = value;
-    else if (count >= capacityVector) {
-        delete[] tab;
-        tab = new DT[count + 5];
-        capacityVector = count + 5;
-        sizeVector = count;
+            storage[i] = value;
+    else if (count >= _capacity) {
+        delete[] storage;
+        storage = new DT[count + 5];
+        _capacity = count + 5;
+        _size = count;
         for (int i = 0; i < count; i++)
-            tab[i] = value;
+            storage[i] = value;
     }
 }
 
 template<typename DT>
 Iterator<DT> Vector<DT>::end(){
-     Iterator<DT> temp(tab + sizeVector);
+     Iterator<DT> temp(storage + _size);
     return temp;
 }
 
 template<typename DT>
 Iterator<DT> Vector<DT>::begin(){
-    Iterator<DT> temp(tab);
+    Iterator<DT> temp(storage);
     return temp;
 }
 
@@ -273,9 +273,9 @@ Iterator<DT> Vector<DT>::erase(Iterator<DT> pos) {
     for (it; it != pos; it++, i++);
 
     for (auto it = pos + 1; it != (*this).end(); it++, i++)
-        tab[i] = tab[i + 1];
+        storage[i] = storage[i + 1];
 
-    sizeVector--;
+    _size--;
     return pos;
 }
 
@@ -289,9 +289,9 @@ Iterator<DT> Vector<DT>::erase(Iterator<DT> first, Iterator<DT> last){
     for (it = first; it != last; it++, temp++, i++);
 
     for (auto it = last; it != (*this).end(); it++, i++)
-        tab[i - temp] = tab[i];
+        storage[i - temp] = storage[i];
 
-    sizeVector -=  temp;
+    _size -=  temp;
     return last;
 }
 
@@ -299,44 +299,44 @@ template<typename DT>
 Iterator<DT> Vector<DT>::insert(Iterator<DT> pos, const DT & value){
     int i = 0;
 
-    if (capacityVector > sizeVector){
-        for(Iterator<DT> it = tab + sizeVector; it != pos; it--, i++)
-            tab[sizeVector - i] = tab[sizeVector - i - 1];
+    if (_capacity > _size){
+        for(Iterator<DT> it = storage + _size; it != pos; it--, i++)
+            storage[_size - i] = storage[_size - i - 1];
         *pos = value;
-        sizeVector++;
+        _size++;
     } else{
-        DT * temp = new DT[sizeVector + 1];
-            for (Iterator<DT> it = tab; it != pos; it++, i++)
-             temp[i] = tab[i];
+        DT * temp = new DT[_size + 1];
+            for (Iterator<DT> it = storage; it != pos; it++, i++)
+             temp[i] = storage[i];
         temp[i] = value;
         i++;
-            for (Iterator<DT> it = tab + i + 1; it != tab + sizeVector + 2; it++, i++)
-            temp[i] = tab[i-1];
-        delete [] tab;
-        tab = temp;
-        sizeVector++;
-        capacityVector = sizeVector;
+            for (Iterator<DT> it = storage + i + 1; it != storage + _size + 2; it++, i++)
+            temp[i] = storage[i-1];
+        delete [] storage;
+        storage = temp;
+        _size++;
+        _capacity = _size;
     }
 }
 
 template<typename DT>
 void Vector<DT>::insert(Iterator<DT> pos, int count, const DT & value){
-    DT * temp = new DT[sizeVector + count];
+    DT * temp = new DT[_size + count];
     int i = 0, j = 0;
 
-    for (Iterator<DT> it = tab; it != pos; it++, i++)
-        temp[i] = tab[i];
+    for (Iterator<DT> it = storage; it != pos; it++, i++)
+        temp[i] = storage[i];
 
     for (j; j < count; j++)
         temp[i+j] = value;
 
-    for (Iterator<DT> it = tab + i; it != tab + sizeVector; it++, i++)
-        temp[i+j] = tab[i];
+    for (Iterator<DT> it = storage + i; it != storage + _size; it++, i++)
+        temp[i+j] = storage[i];
 
-    sizeVector += count;
-    capacityVector = sizeVector;
-    delete [] tab;
-    tab = temp;
+    _size += count;
+    _capacity = _size;
+    delete [] storage;
+    storage = temp;
 }
 
 #endif //VECTOR_TEMPLATE_VECTOR_H
