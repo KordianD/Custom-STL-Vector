@@ -10,7 +10,7 @@ private:
     int sizeVector;
     int capacityVector;
 public:
-    Vector() : tab(nullptr), sizeVector(), capacityVector() {}
+    Vector() : tab(nullptr), sizeVector(0), capacityVector(0) {}
     explicit Vector(int size);
     Vector(int size, int value);
     Vector(const std::initializer_list<DT> &v);
@@ -115,15 +115,15 @@ Vector<DT>::~Vector() {
 }
 
 template<typename DT>
-bool Vector<DT>::operator==(const Vector<DT> &v) const {
-    if (sizeVector == v.sizeVector && capacityVector == v.capacityVector) {
-        for (int i = 0; i < sizeVector; i++)
-            if (tab[i] != v.tab[i])
-                return false;
-        return true;
-    }
-    return false;
+bool Vector<DT>::operator==(const Vector<DT> &v) {
+    if (sizeVector != v.sizeVector || capacityVector != v.capacityVector)
+        return false;
 
+    for (int i = 0; i < sizeVector; i++)
+        if (tab[i] != v.tab[i])
+            return false;
+
+    return true;
 }
 
 template<typename DT>
