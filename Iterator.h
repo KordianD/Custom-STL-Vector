@@ -4,16 +4,16 @@
 template<typename DT>
 class Iterator {
 private:
-    DT * pointer;
+    DT * point;
 public:
     typedef std::ptrdiff_t                    difference_type;
-    typedef T                                 value_type;
-    typedef T*                                pointer;
-    typedef T&                                reference;
+    typedef DT                                 value_type;
+    typedef DT *                               pointer;
+    typedef DT &                               reference;
     typedef std::random_access_iterator_tag   iterator_category	;
 
-    Iterator(): pointer(nullptr){};
-    Iterator(DT * item) : pointer(item){}
+    Iterator(): point(nullptr){};
+    Iterator(DT * item) : point(item){}
 
     Iterator<DT> & operator=(const Iterator<DT> & iter) = default;
     ~Iterator() = default;
@@ -39,48 +39,48 @@ public:
 
 template<typename DT>
 bool Iterator<DT>::operator==(const Iterator<DT> & iter) const {
-    return pointer == iter.pointer;
+    return point == iter.point;
 }
 
 template<typename DT>
 bool Iterator<DT>::operator!=(const Iterator<DT> & iter) const {
-    return pointer != iter.pointer;
+    return point != iter.point;
 }
 
 template<typename DT>
 bool Iterator<DT>::operator<(const Iterator<DT> & iter) const{
-    return pointer < iter.pointer;
+    return point < iter.point;
 }
 
 template<typename DT>
 bool Iterator<DT>::operator<=(const Iterator<DT> & iter) const{
-    return pointer <= iter.pointer;
+    return point <= iter.point;
 }
 
 template<typename DT>
 bool Iterator<DT>::operator>(const Iterator<DT> &iter) const {
-    return pointer > iter.pointer;
+    return point > iter.point;
 }
 
 template<typename DT>
 bool Iterator<DT>::operator>=(const Iterator<DT> &iter) const {
-    return pointer >= iter.pointer;
+    return point >= iter.point;
 }
 
 template<typename DT>
 DT & Iterator<DT>::operator[](int n) {
-    return *(pointer + n);
+    return *(point + n);
 }
 
 template<typename DT>
 Iterator<DT> Iterator<DT>::operator+(int add) {
-    Iterator<DT> temp(pointer + add);
+    Iterator<DT> temp(point + add);
     return temp;
 }
 
 template<typename DT>
 Iterator<DT> Iterator<DT>::operator-(int sub){
-    Iterator<DT> temp(pointer - sub);
+    Iterator<DT> temp(point - sub);
     return temp;
 }
 
@@ -91,32 +91,32 @@ Iterator<DT> operator+(int add, const Iterator<DT> & iter){
 
 template<typename DT>
 Iterator<DT> & Iterator<DT>::operator++(){
-    pointer++;
+    point++;
     return *this;
 }
 
 template<typename DT>
 Iterator<DT> Iterator<DT>::operator++(int){
     Iterator<DT> temp = *this;
-    pointer++;
+    point++;
     return temp;
 }
 
 template<typename DT>
 Iterator<DT> & Iterator<DT>::operator--(){
-    pointer--;
+    point--;
     return *this;
 }
 
 template<typename DT>
 Iterator<DT> Iterator<DT>::operator--(int){
     Iterator<DT> temp = *this;
-    pointer--;
+    point--;
     return temp;
 }
 
 template<typename DT>
 DT & Iterator<DT>::operator*(){
-    return *pointer;
+    return *point;
 }
 #endif //VECTOR_TEMPLATE_ITERATOR_H
